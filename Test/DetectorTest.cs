@@ -34,12 +34,18 @@ namespace Test
 
         [TestMethod]
         public void TestOnDetectProtocol()
-        {
-            var p1 = Detector.DetectProtocol("192.168.0.1");
-            var p2 = Detector.DetectProtocol("ae34:ae:fe:12:51:5af:bcde:123");
+        {            
             Assert.AreEqual(Detector.DetectProtocol("192.168.0.1"), Protocol.IPv4);
             Assert.AreEqual(Detector.DetectProtocol("ae34:ae:fe:12:51:5af:bcde:123"), Protocol.IPv6);
             Assert.AreEqual(Detector.DetectProtocol("114.114.141.291"), Protocol.Invalid);
+        }
+
+        [TestMethod]
+        public void TestOnHexadecimal()
+        {
+            Assert.IsTrue(Detector.IsHexadecimal("FFFF"));
+            Assert.IsTrue(Detector.IsHexadecimal("0000"));
+            Assert.IsFalse(Detector.IsHexadecimal("ABCG"));
         }
     }
 }
