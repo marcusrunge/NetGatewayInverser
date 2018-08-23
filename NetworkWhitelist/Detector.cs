@@ -9,6 +9,7 @@ namespace NetworkWhitelist
     {
         static readonly string IPv4_RFC3986 = "\\A(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}\\z";
         static readonly string IPv6_RFC2732_v2 = "\\A(?:(?:(?:[0-9A-Fa-f]{0,4}:){7}[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){6}:[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){5}:(?:[0-9A-Fa-f]{0,4}:)?[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){4}:(?:[0-9A-Fa-f]{0,4}:){0,2}[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){3}:(?:[0-9A-Fa-f]{0,4}:){0,3}[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){2}:(?:[0-9A-Fa-f]{0,4}:){0,4}[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){6}(?:(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:1\\d{2})|(?:\\d{1,2}))\\.){3}(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:1\\d{2})|(?:\\d{1,2})))|(?:(?:[0-9A-Fa-f]{0,4}:){0,5}:(?:(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:1\\d{2})|(?:\\d{1,2}))\\.){3}(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:1\\d{2})|(?:\\d{1,2})))|(?:::(?:[0-9A-Fa-f]{0,4}:){0,5}(?:(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:1\\d{2})|(?:\\d{1,2}))\\.){3}(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:1\\d{2})|(?:\\d{1,2})))|(?:[0-9A-Fa-f]{0,4}::(?:[0-9A-Fa-f]{0,4}:){0,5}[0-9A-Fa-f]{0,4})|(?:::(?:[0-9A-Fa-f]{0,4}:){0,6}[0-9A-Fa-f]{0,4})|(?:(?:[0-9A-Fa-f]{0,4}:){1,7}:))\\z";
+        static readonly string Hexadecimal = "\\A[0-9A-F]+\\Z";
 
         /// <summary>
         /// The method determines whether the passed address parameter is IPv4 or not
@@ -52,6 +53,22 @@ namespace NetworkWhitelist
             if (Regex.IsMatch(address, IPv4_RFC3986, RegexOptions.IgnoreCase)) return Protocol.IPv4;
             else if (Regex.IsMatch(address, IPv6_RFC2732_v2, RegexOptions.IgnoreCase)) return Protocol.IPv6;
             else return Protocol.Invalid;
+        }
+
+
+        /// <summary>
+        /// The method determines whether the passed number is hexadecimal
+        /// </summary>
+        /// <param name="hexNumber">
+        /// Parameter hexnNumber can be anything
+        /// </param>
+        /// <returns>
+        /// The method returns true if passed hexNumber is hexadecimal
+        /// </returns>
+        public static bool IsHexadecimal(string hexNumber)
+        {
+            if (Regex.IsMatch(hexNumber, Hexadecimal, RegexOptions.IgnoreCase)) return true;
+            else return false;
         }
     }
 }

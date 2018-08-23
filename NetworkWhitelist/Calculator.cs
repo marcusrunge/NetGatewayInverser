@@ -86,6 +86,6 @@ namespace NetworkWhitelist
                 }
             }
             return whiteList;
-        }
+        } 
     }
 }

@@ -48,5 +48,17 @@ namespace NetworkWhitelist
             }
             return (long)octetsAsInt[0] * (long)16777216 + (long)octetsAsInt[1] * (long)65536 + (long)octetsAsInt[2] * (long)256 + (long)octetsAsInt[3];
         }
+
+        internal static long[] ConvertToLongIPv6Blocks(string ipv6Address)
+        {
+            long[] ipv6Blocks = new long[4];
+            return ipv6Blocks;
+        }
+
+        internal static string ConvertToLongIPv6Address(long[] ipv6Blocks)
+        {
+            string ipv6Address = String.Empty;
+            return ipv6Address;
+        }
     }    
 }
