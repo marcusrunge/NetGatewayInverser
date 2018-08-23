@@ -18,9 +18,9 @@ namespace NetworkWhitelist
         /// </returns>
         public static List<Network> GetWhiteList(List<Network> blackList)
         {
-            long remaining = IPV4_ADDRESS_SPACE;
-            long whiteListNetwork = 0;
             List<Network> whiteList = new List<Network>();
+            long remaining = IPV4_ADDRESS_SPACE;
+            long whiteListNetwork = 0;            
             blackList.Sort();
             if (blackList == null || blackList.Count == 0) whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0 });
 

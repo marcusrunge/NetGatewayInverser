@@ -1,4 +1,4 @@
 ﻿namespace NetworkWhitelist
 {
-    public enum NetworkType { IPv4, IPv6};
+    public enum Protocol { IPv4, IPv6, Invalid};
 }
