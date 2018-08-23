@@ -20,44 +20,56 @@ namespace NetworkWhitelist
         {
             List<Network> whiteList = new List<Network>();
             long remaining = IPV4_ADDRESS_SPACE;
-            long whiteListNetwork = 0;            
+            long whiteListNetwork = 0;
             blackList.Sort();
-            if (blackList == null || blackList.Count == 0) whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0 });
+            if (blackList == null || blackList.Count == 0)
+            {
+                whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0 });
+                whiteList.Add(new Network() { Address = "::", Prefix = 0 });
+            }
+
 
             for (int i = 0; i < blackList.Count; i++)
             {
-                long blackListNetwork = Converter.ConvertToLongAddress(blackList[i].Address);
-                long blackListNetworkBroadcast = blackListNetwork + (long)Math.Pow(2, 32 - blackList[i].Prefix) - 1;
-
-                if (i > 0)
+                if (Detector.IsIPv4Protocol(blackList[i].Address))
                 {
-                    whiteListNetwork = Converter.ConvertToLongAddress(blackList[i - 1].Address) + (long)Math.Pow(2, 32 - blackList[i - 1].Prefix);
-                }
+                    long blackListNetwork = Converter.ConvertToLongAddress(blackList[i].Address);
+                    long blackListNetworkBroadcast = blackListNetwork + (long)Math.Pow(2, 32 - blackList[i].Prefix) - 1;
 
-                long remainingWhiteListSpace = blackListNetwork - whiteListNetwork;
-                while (remainingWhiteListSpace > 0)
-                {
-                    int prefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingWhiteListSpace) / Math.Log10(2)));
-                    long whiteListNetworkSize = (long)Math.Pow(2, 32 - prefixLength);
-                    long border = (long)(Math.Floor((double)(whiteListNetwork + whiteListNetworkSize) / whiteListNetworkSize) * whiteListNetworkSize);
-                    //No border violation
-                    if (whiteListNetwork + whiteListNetworkSize <= border)
+                    if (i > 0)
                     {
-                        whiteList.Add(new Network() { Address = Converter.ConvertToAddress(whiteListNetwork), Prefix = prefixLength });
-                        whiteListNetwork = whiteListNetwork + whiteListNetworkSize;
-                        remainingWhiteListSpace = remainingWhiteListSpace - whiteListNetworkSize;
-                        //Border violation
+                        whiteListNetwork = Converter.ConvertToLongAddress(blackList[i - 1].Address) + (long)Math.Pow(2, 32 - blackList[i - 1].Prefix);
                     }
-                    else
+
+                    long remainingWhiteListSpace = blackListNetwork - whiteListNetwork;
+                    while (remainingWhiteListSpace > 0)
                     {
-                        long left = border - whiteListNetwork;
-                        int leftPrefixLength = (int)Math.Floor(32 - (Math.Log10(left) / Math.Log10(2)));
-                        whiteList.Add(new Network() { Address = Converter.ConvertToAddress(border - left), Prefix = leftPrefixLength });
-                        whiteListNetwork = border;
-                        remainingWhiteListSpace = remainingWhiteListSpace - left;
+                        int prefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingWhiteListSpace) / Math.Log10(2)));
+                        long whiteListNetworkSize = (long)Math.Pow(2, 32 - prefixLength);
+                        long border = (long)(Math.Floor((double)(whiteListNetwork + whiteListNetworkSize) / whiteListNetworkSize) * whiteListNetworkSize);
+                        //No border violation
+                        if (whiteListNetwork + whiteListNetworkSize <= border)
+                        {
+                            whiteList.Add(new Network() { Address = Converter.ConvertToAddress(whiteListNetwork), Prefix = prefixLength });
+                            whiteListNetwork = whiteListNetwork + whiteListNetworkSize;
+                            remainingWhiteListSpace = remainingWhiteListSpace - whiteListNetworkSize;
+                            //Border violation
+                        }
+                        else
+                        {
+                            long left = border - whiteListNetwork;
+                            int leftPrefixLength = (int)Math.Floor(32 - (Math.Log10(left) / Math.Log10(2)));
+                            whiteList.Add(new Network() { Address = Converter.ConvertToAddress(border - left), Prefix = leftPrefixLength });
+                            whiteListNetwork = border;
+                            remainingWhiteListSpace = remainingWhiteListSpace - left;
+                        }
                     }
+                    remaining = IPV4_ADDRESS_SPACE - blackListNetworkBroadcast - 1;
                 }
-                remaining = IPV4_ADDRESS_SPACE - blackListNetworkBroadcast - 1;
+                else if (Detector.IsIPv6Protocol(blackList[i].Address))
+                {
+                    //TODO
+                }
             }
 
             //Finalize
