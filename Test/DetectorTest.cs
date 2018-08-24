@@ -46,6 +46,6 @@ namespace Test
             Assert.IsTrue(Detector.IsHexadecimal("FFFF"));
             Assert.IsTrue(Detector.IsHexadecimal("0000"));
             Assert.IsFalse(Detector.IsHexadecimal("ABCG"));
-        }
+        }        
     }
 }

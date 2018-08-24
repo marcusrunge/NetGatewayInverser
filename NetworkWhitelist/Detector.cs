@@ -67,8 +67,7 @@ namespace NetworkWhitelist
         /// </returns>
         public static bool IsHexadecimal(string hexNumber)
         {
-            if (Regex.IsMatch(hexNumber, Hexadecimal, RegexOptions.IgnoreCase)) return true;
-            else return false;
+            return Regex.IsMatch(hexNumber, Hexadecimal, RegexOptions.IgnoreCase);
         }
     }
 }
