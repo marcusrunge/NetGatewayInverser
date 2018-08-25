@@ -8,7 +8,7 @@ namespace NetworkWhitelist
     {
         private const long IPV4_ADDRESS_SPACE = 4294967296;
         //340282366920938463463374607431768211456
-        private static readonly BigInteger IPV6 = BigInteger.Pow(2, 128);
+        private static readonly BigInteger IPV6_ADDRESS_SPACE = BigInteger.Pow(2, 128);
         /// <summary>
         /// The method calculates an IPv4 address space in form of a network list exluding the blacklist.
         /// </summary>
@@ -22,7 +22,7 @@ namespace NetworkWhitelist
         {
             List<Network> whiteList = new List<Network>();
             long remainingIPv4 = IPV4_ADDRESS_SPACE;
-            Tuple<int, long> remainingIPv6 = new Tuple<int, long>(128, 0);
+            BigInteger remainingIPv6 = IPV6_ADDRESS_SPACE;            
             long ipv4WhiteListNetwork = 0;
             long[] ipv6WhiteListNetwork = new long[8];
             long ipv4Networks = 0;
@@ -59,7 +59,7 @@ namespace NetworkWhitelist
                         //No border violation
                         if (ipv4WhiteListNetwork + whiteListNetworkSize <= border)
                         {
-                            whiteList.Add(new Network() { Address = Converter.ConvertToAddress(ipv4WhiteListNetwork), Prefix = prefixLength });
+                            whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(ipv4WhiteListNetwork), Prefix = prefixLength });
                             ipv4Networks++;
                             ipv4WhiteListNetwork = ipv4WhiteListNetwork + whiteListNetworkSize;
                             remainingWhiteListSpace = remainingWhiteListSpace - whiteListNetworkSize;
@@ -69,7 +69,7 @@ namespace NetworkWhitelist
                         {
                             long left = border - ipv4WhiteListNetwork;
                             int leftPrefixLength = (int)Math.Floor(32 - (Math.Log10(left) / Math.Log10(2)));
-                            whiteList.Add(new Network() { Address = Converter.ConvertToAddress(border - left), Prefix = leftPrefixLength });
+                            whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(border - left), Prefix = leftPrefixLength });
                             ipv4Networks++;
                             ipv4WhiteListNetwork = border;
                             remainingWhiteListSpace = remainingWhiteListSpace - left;
@@ -81,7 +81,10 @@ namespace NetworkWhitelist
                 {
                     //TODO
                     var ipv6BlackListBlocks = Converter.ConvertToLongIPv6Blocks(blackList[i].Address);
-                    
+                    if (true)
+                    {
+
+                    }
                 }
             }
 
@@ -94,7 +97,7 @@ namespace NetworkWhitelist
                     int prefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingIPv4) / Math.Log10(2)));
                     long lastNetworkSize = (long)Math.Pow(2, 32 - prefixLength);
                     lastNetwork = lastNetwork - lastNetworkSize;
-                    whiteList.Add(new Network() { Address = Converter.ConvertToAddress(lastNetwork), Prefix = prefixLength });
+                    whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(lastNetwork), Prefix = prefixLength });
                     ipv4Networks++;
                     remainingIPv4 = remainingIPv4 - lastNetworkSize;
                 }
@@ -104,6 +107,6 @@ namespace NetworkWhitelist
             if (ipv6Networks == 0) whiteList.Add(new Network() { Address = "::", Prefix = 0 });
             
             return whiteList;
-        } 
+        }
     }
 }

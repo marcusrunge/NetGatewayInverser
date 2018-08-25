@@ -21,5 +21,11 @@ namespace Test
             var whiteList = Calculator.GetWhiteList(blackList);
             Assert.IsNotNull(whiteList);
         }
+
+        [TestMethod]
+        public void Test()
+        {
+            Assert.IsNotNull(Calculator.Test());
+        }
     }
 }

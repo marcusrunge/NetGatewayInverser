@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
 
 namespace NetworkWhitelist
 {
@@ -14,7 +17,7 @@ namespace NetworkWhitelist
         /// <returns>
         /// The method returns the string represented IPv4 address eg. "127.0.0.1"
         /// </returns>
-        internal static string ConvertToAddress(long address)
+        internal static string ConvertToIPv4Address(long address)
         {
             int[] octets = new int[4];
             int exponent = 3;
@@ -48,56 +51,7 @@ namespace NetworkWhitelist
                 else return -1;
             }
             return (long)octetsAsInt[0] * (long)16777216 + (long)octetsAsInt[1] * (long)65536 + (long)octetsAsInt[2] * (long)256 + (long)octetsAsInt[3];
-        }
-
-        /// <summary>
-        /// The method converts a string formatted IPv6 address eg. "::ffff:7f00:1" into a blockwise numerical representation
-        /// </summary>
-        /// <param name="ipv6Address">
-        /// Parameter address require the string formatted IPv6 address eg. "::ffff:7f00:1"
-        /// </param>
-        /// <returns>
-        /// The method returns the IPv6 address as a blockwise numerical representation
-        /// </returns>
-        internal static long[] ConvertToLongIPv6Blocks(string ipv6Address)
-        {
-            long[] ipv6BlocksAsLong = new long[8];
-            string[] ipv6BlocksAsString = ipv6Address.Split(':');
-            for (int i = 0; i < 8; i++)
-            {
-                if (ipv6BlocksAsString.Length >= i + 1)
-                {
-                    if (ipv6BlocksAsString[i].Equals("")) ipv6BlocksAsLong[i] = 0;
-                    else ipv6BlocksAsLong[i] = Convert.ToInt64(ipv6BlocksAsString[i], 16);
-                }
-                else ipv6BlocksAsLong[i] = 0;
-            }
-            return ipv6BlocksAsLong;
-        }
-
-        /// <summary>
-        /// The method converts a blockwise numerical formatted IPv6 address into a string representation
-        /// </summary>
-        /// <param name="ipv6Blocks">
-        /// Parameter address require the blockwise numerical formatted IPv6 address
-        /// </param>
-        /// <returns>
-        /// The method returns the IPv6 address as a hex string representation
-        /// </returns>
-        internal static string ConvertToIPv6Address(long[] ipv6Blocks)
-        {
-            string ipv6Address = String.Empty;
-            for (int i = 0; i < 8; i++)
-            {
-                if (ipv6Blocks.Length >= i + 1)
-                {
-                    ipv6Address = ipv6Address + ":" + ipv6Blocks[i];
-                }
-                else ipv6Address = ipv6Address + ":0";
-            }
-            ipv6Address = ipv6Address.Remove(0, 1);
-            return ipv6Address;
-        }
+        }        
 
         /// <summary>
         /// The method converts a numerical value into a hexadecimal string
@@ -123,6 +77,75 @@ namespace NetworkWhitelist
             literals.Reverse();
             literals.ForEach((s) => hexString = hexString + s);
             return hexString;
+        }
+
+        /// <summary>
+        /// The method converts a string formatted IPv6 address eg. "::ffff:7f00:1" into a decimal representation
+        /// </summary>
+        /// <param name="ipv6Address">
+        /// Parameter address require the string formatted IPv6 address eg. "::ffff:7f00:1"
+        /// </param>
+        /// <returns>
+        /// The method returns the IPv6 address as a decimal representation
+        /// </returns>
+        internal static BigInteger ConvertToBigIntegerAddress(string ipv6Address)
+        {
+            BigInteger ipv6AsBigInteger = new BigInteger();
+            string[] ipv6BlocksAsStringCorrected = new string[8];
+            if (ipv6Address.Equals("::")) return new BigInteger(0);
+            if (ipv6Address.Length < 32)
+            {
+                string[] leadingZeroBlocks;
+                bool leadingZeros = ipv6Address.StartsWith("::");
+                string[] ipv6BlocksAsString = ipv6Address.Split(':');
+                if (leadingZeros)
+                {
+                    leadingZeroBlocks = new string[8 - ipv6BlocksAsString.Length];
+                    for (int i = 0; i < leadingZeroBlocks.Length; i++)
+                    {
+                        leadingZeroBlocks[i] = "0000";
+                    }
+                    ipv6BlocksAsString = leadingZeroBlocks.ToList().Concat(ipv6BlocksAsString.ToList()).ToArray();
+                }
+                for (int i = 0; i < 8; i++)
+                {
+                    if (ipv6BlocksAsString.Length >= i + 1)
+                    {
+                        for (int j = 0; j < 4 - ipv6BlocksAsString[i].Length; j++)
+                        {
+                            ipv6BlocksAsStringCorrected[i] = ipv6BlocksAsStringCorrected[i] + "0";
+                        }
+                        ipv6BlocksAsStringCorrected[i] = ipv6BlocksAsStringCorrected[i] + ipv6BlocksAsString[i];
+                    }
+                    else ipv6BlocksAsStringCorrected[i] = "0000";
+                }
+                ipv6Address = string.Empty;
+                foreach (var block in ipv6BlocksAsStringCorrected) ipv6Address = ipv6Address + block;
+            }
+            else ipv6Address = ipv6Address.Replace(":", "");
+            int e = 31;
+            for (int i = 0; i < ipv6Address.Length; i++)
+            {
+                int basePart = int.Parse(ipv6Address[i].ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                ipv6AsBigInteger = ipv6AsBigInteger + (basePart * BigInteger.Pow(16, e));
+                e--;
+            }
+            return ipv6AsBigInteger;
+        }
+
+        /// <summary>
+        /// The method converts a decimal formatted IPv6 address eg. "281472812449793" into a hexadecimal IPv6 representation
+        /// </summary>
+        /// <param name="ipv6AsBigInteger">
+        /// Parameter address require the decimal IPv6 address eg. "281472812449793"
+        /// </param>
+        /// <returns>
+        /// The method returns the IPv6 address as a hexadecimal IPv6 representation
+        /// </returns>
+        internal static string ConvertToIPv4Address(BigInteger ipv6AsBigInteger)
+        {
+            string ipv6Address = String.Empty;
+            return ipv6Address;
         }
     }
 }
