@@ -79,12 +79,7 @@ namespace NetworkWhitelist
                 }
                 else if (Detector.IsIPv6Protocol(blackList[i].Address))
                 {
-                    //TODO
-                    var ipv6BlackListBlocks = Converter.ConvertToLongIPv6Blocks(blackList[i].Address);
-                    if (true)
-                    {
-
-                    }
+                    //TODO                    
                 }
             }
 

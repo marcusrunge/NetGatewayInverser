@@ -142,10 +142,33 @@ namespace NetworkWhitelist
         /// <returns>
         /// The method returns the IPv6 address as a hexadecimal IPv6 representation
         /// </returns>
-        internal static string ConvertToIPv4Address(BigInteger ipv6AsBigInteger)
+        internal static string ConvertToIPv6Address(BigInteger ipv6AsBigInteger)
         {
+            string[] hex = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
+            List<string> literals = new List<string>();
+            BigInteger remainder = new BigInteger(0);
+            while (ipv6AsBigInteger > 0)
+            {
+                remainder = ipv6AsBigInteger % 16;
+                ipv6AsBigInteger = ipv6AsBigInteger / 16;
+                literals.Add(hex[(int)remainder]);
+            }
+            int literalsCount = literals.Count;
+            if (literalsCount < 32) for (int i = 0; i < 32 - literalsCount; i++) literals.Add("0");
             string ipv6Address = String.Empty;
-            return ipv6Address;
+            literals.Reverse();
+            int j = 0;
+            literals.ForEach((s) =>
+            {
+                ipv6Address = ipv6Address + s;
+                if (j == 3)
+                {
+                    ipv6Address = ipv6Address + ":";
+                    j = -1;
+                }
+                j++;
+            });
+            return ipv6Address.TrimEnd(':');
         }
     }
 }
