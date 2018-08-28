@@ -7,8 +7,8 @@ namespace NetworkWhitelist
     public static class Calculator
     {
         private const long IPV4_ADDRESS_SPACE = 4294967296;
-        //340282366920938463463374607431768211456
-        private static readonly BigInteger IPV6_ADDRESS_SPACE = BigInteger.Pow(2, 128);
+        //340282366920938463463374607431768211456        
+        private static readonly BigInteger IPV6_ADDRESS_SPACE = BigInteger.Parse("340282366920938463463374607431768211456");
         /// <summary>
         /// The method calculates an IPv4 and IPv6 address space in form of a network list exluding the blacklist.
         /// </summary>
