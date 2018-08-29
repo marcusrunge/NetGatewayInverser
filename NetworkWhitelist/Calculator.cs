@@ -121,7 +121,7 @@ namespace NetworkWhitelist
             }
 
             //Finalize
-            if (remainingIPv4 > 0)
+            if (remainingIPv4 > 0 && lastIPv4Iteration > -1)
             {
                 long lastNetwork = IPV4_ADDRESS_SPACE;
                 while (remainingIPv4 > 0)
@@ -135,7 +135,7 @@ namespace NetworkWhitelist
                 }
             }
 
-            if (remainingIPv6 > 0)
+            if (remainingIPv6 > 0 && lastIPv6Iteration > -1)
             {
                 BigInteger lastNetwork = IPV6_ADDRESS_SPACE;
                 while (remainingIPv6 > 0)
@@ -149,8 +149,8 @@ namespace NetworkWhitelist
                 }
             }
 
-            if (ipv4Networks == 0) whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0, Protocol = Protocol.IPv4 });
-            if (ipv6Networks == 0) whiteList.Add(new Network() { Address = "::", Prefix = 0, Protocol = Protocol.IPv6 });
+            //if (ipv4Networks == 0) whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0, Protocol = Protocol.IPv4 });
+            //if (ipv6Networks == 0) whiteList.Add(new Network() { Address = "::", Prefix = 0, Protocol = Protocol.IPv6 });
 
             return whiteList;
         }
