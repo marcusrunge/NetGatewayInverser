@@ -24,7 +24,7 @@ namespace NetworkWhitelist
             long remainingIPv4 = IPV4_ADDRESS_SPACE;
             BigInteger remainingIPv6 = IPV6_ADDRESS_SPACE;
             long ipv4WhiteListNetwork = 0;
-            BigInteger ipv6WhiteListNetwork = new BigInteger(0);
+            BigInteger ipv6WhiteListNetwork = BigInteger.Zero;
             long ipv4Networks = 0;
             long ipv6Networks = 0;
             int lastIPv4Iteration = -1;
@@ -80,8 +80,7 @@ namespace NetworkWhitelist
                     lastIPv4Iteration = i;
                 }
                 else if (Detector.IsIPv6Protocol(blackList[i].Address))
-                {
-                    //TODO    
+                {                       
                     BigInteger blackListNetwork = Converter.ConvertToBigIntegerAddress(blackList[i].Address);
                     BigInteger blackListNetworkBroadcast = blackListNetwork + BigInteger.Pow(2, 128 - blackList[i].Prefix) - 1;
                     if (i > 0 && lastIPv6Iteration > 0)
