@@ -46,7 +46,7 @@ namespace NetworkWhitelist
                     long blackListNetwork = Converter.ConvertToLongAddress(blackList[i].Address);
                     long blackListNetworkBroadcast = blackListNetwork + (long)Math.Pow(2, 32 - blackList[i].Prefix) - 1;
 
-                    if (i > 0 && lastIPv4Iteration > 0)
+                    if (i > 0 && lastIPv4Iteration > -1)
                     {
                         ipv4WhiteListNetwork = Converter.ConvertToLongAddress(blackList[lastIPv4Iteration].Address) + (long)Math.Pow(2, 32 - blackList[lastIPv4Iteration].Prefix);
                     }
@@ -83,7 +83,7 @@ namespace NetworkWhitelist
                 {                       
                     BigInteger blackListNetwork = Converter.ConvertToBigIntegerAddress(blackList[i].Address);
                     BigInteger blackListNetworkBroadcast = blackListNetwork + BigInteger.Pow(2, 128 - blackList[i].Prefix) - 1;
-                    if (i > 0 && lastIPv6Iteration > 0)
+                    if (i > 0 && lastIPv6Iteration > -1)
                     {
                         ipv6WhiteListNetwork = Converter.ConvertToBigIntegerAddress(blackList[lastIPv6Iteration].Address) + BigInteger.Pow(2, 128 - blackList[lastIPv6Iteration].Prefix);
                     }
