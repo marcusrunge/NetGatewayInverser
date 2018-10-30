@@ -12,15 +12,16 @@ namespace NetworkWhitelist
         /// <summary>
         /// The method calculates an IPv4 and IPv6 address space in form of a network list exluding the blacklist.
         /// </summary>
-        /// <param name="blackList">
+        /// <param name="cleanedBlackList">
         /// Parameter blacklist requires a list of networks to be excluded from IPv4 and IPv6 address space
         /// </param>
         /// <returns>
         /// The method returns the IPv4 and IPv6 address space as a network list excluding the blacklisted
         /// </returns>
-        public static List<Network> GetWhiteList(List<Network> blackList)
+        public static List<Network> GetWhiteList(List<Network> rawBlackList)
         {
             List<Network> whiteList = new List<Network>();
+            List<Network> cleanedBlackList = new List<Network>();
             long remainingIPv4 = IPV4_ADDRESS_SPACE;
             BigInteger remainingIPv6 = IPV6_ADDRESS_SPACE;
             long ipv4WhiteListNetwork = 0;
@@ -30,8 +31,27 @@ namespace NetworkWhitelist
             int lastIPv4Iteration = -1;
             int lastIPv6Iteration = -1;
 
-            blackList.Sort();
-            if (blackList == null || blackList.Count == 0)
+            foreach (var loopOneNetwork in rawBlackList)
+            {
+                if (cleanedBlackList.Count > 0)
+                {
+                    bool doubleFound = false;
+                    foreach (var loopTwoNetwork in cleanedBlackList)
+                    {
+                        if (loopOneNetwork.Address.Equals(loopTwoNetwork.Address))
+                        {
+                            doubleFound = true;
+                            break;
+                        }
+                    }
+                    if(!doubleFound) cleanedBlackList.Add(loopOneNetwork);
+                }
+                else cleanedBlackList.Add(loopOneNetwork);
+            }
+
+            cleanedBlackList.Sort();
+
+            if (cleanedBlackList == null || cleanedBlackList.Count == 0)
             {
                 whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0, Protocol = Protocol.IPv4 });
                 ipv4Networks++;
@@ -39,16 +59,16 @@ namespace NetworkWhitelist
                 ipv6Networks++;
             }
 
-            for (int i = 0; i < blackList.Count; i++)
+            for (int i = 0; i < cleanedBlackList.Count; i++)
             {
-                if (Detector.IsIPv4Protocol(blackList[i].Address))
+                if (Detector.IsIPv4Protocol(cleanedBlackList[i].Address))
                 {
-                    long blackListNetwork = Converter.ConvertToLongAddress(blackList[i].Address);
-                    long blackListNetworkBroadcast = blackListNetwork + (long)Math.Pow(2, 32 - blackList[i].Prefix) - 1;
+                    long blackListNetwork = Converter.ConvertToLongAddress(cleanedBlackList[i].Address);
+                    long blackListNetworkBroadcast = blackListNetwork + (long)Math.Pow(2, 32 - cleanedBlackList[i].Prefix) - 1;
 
                     if (i > 0 && lastIPv4Iteration > -1)
                     {
-                        ipv4WhiteListNetwork = Converter.ConvertToLongAddress(blackList[lastIPv4Iteration].Address) + (long)Math.Pow(2, 32 - blackList[lastIPv4Iteration].Prefix);
+                        ipv4WhiteListNetwork = Converter.ConvertToLongAddress(cleanedBlackList[lastIPv4Iteration].Address) + (long)Math.Pow(2, 32 - cleanedBlackList[lastIPv4Iteration].Prefix);
                     }
 
                     long remainingWhiteListSpace = blackListNetwork - ipv4WhiteListNetwork;
@@ -79,13 +99,13 @@ namespace NetworkWhitelist
                     remainingIPv4 = IPV4_ADDRESS_SPACE - blackListNetworkBroadcast - 1;
                     lastIPv4Iteration = i;
                 }
-                else if (Detector.IsIPv6Protocol(blackList[i].Address))
+                else if (Detector.IsIPv6Protocol(cleanedBlackList[i].Address))
                 {                       
-                    BigInteger blackListNetwork = Converter.ConvertToBigIntegerAddress(blackList[i].Address);
-                    BigInteger blackListNetworkBroadcast = blackListNetwork + BigInteger.Pow(2, 128 - blackList[i].Prefix) - 1;
+                    BigInteger blackListNetwork = Converter.ConvertToBigIntegerAddress(cleanedBlackList[i].Address);
+                    BigInteger blackListNetworkBroadcast = blackListNetwork + BigInteger.Pow(2, 128 - cleanedBlackList[i].Prefix) - 1;
                     if (i > 0 && lastIPv6Iteration > -1)
                     {
-                        ipv6WhiteListNetwork = Converter.ConvertToBigIntegerAddress(blackList[lastIPv6Iteration].Address) + BigInteger.Pow(2, 128 - blackList[lastIPv6Iteration].Prefix);
+                        ipv6WhiteListNetwork = Converter.ConvertToBigIntegerAddress(cleanedBlackList[lastIPv6Iteration].Address) + BigInteger.Pow(2, 128 - cleanedBlackList[lastIPv6Iteration].Prefix);
                     }
                     BigInteger remainingWhiteListSpace = blackListNetwork - ipv6WhiteListNetwork;
 
