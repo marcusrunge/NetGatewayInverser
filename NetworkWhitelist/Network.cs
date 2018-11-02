@@ -11,7 +11,7 @@ namespace NetworkWhitelist
         public int CompareTo(Network other)
         {
             if (other == null) return 1;
-            return Address.CompareTo(other.Address);
+            return other.Address.CompareTo(Address);
         }
     }
 }
