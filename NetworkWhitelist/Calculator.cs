@@ -89,9 +89,17 @@ namespace NetworkWhitelist
                         else
                         {
                             long left = border - ipv4WhiteListNetwork;
-                            int leftPrefixLength = (int)Math.Floor(32 - (Math.Log10(left) / Math.Log10(2)));
-                            whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(border - left), Prefix = leftPrefixLength });
-                            ipv4Networks++;
+                            long remainingLeft = left;
+                            long shiftBorder = border;
+                            while (remainingLeft > 0)
+                            {
+                                int leftPrefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingLeft) / Math.Log10(2)));
+                                long shiftLeft = (long)Math.Pow(2, 32 - leftPrefixLength);
+                                shiftBorder = shiftBorder - shiftLeft;
+                                whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(shiftBorder), Prefix = leftPrefixLength });                                
+                                ipv4Networks++;
+                                remainingLeft = remainingLeft - shiftLeft;
+                            }
                             ipv4WhiteListNetwork = border;
                             remainingWhiteListSpace = remainingWhiteListSpace - left;
                         }
@@ -126,9 +134,17 @@ namespace NetworkWhitelist
                         else
                         {
                             BigInteger left = border - ipv6WhiteListNetwork;
-                            int leftPrefixLength = (int)Math.Floor(128 - (BigInteger.Log10(left) / Math.Log10(2)));
-                            whiteList.Add(new Network() { Address = Converter.ConvertToIPv6Address(border - left), Prefix = leftPrefixLength });
-                            ipv6Networks++;
+                            BigInteger remainingLeft = left;
+                            BigInteger shiftBorder = border;
+                            while (remainingLeft > 0)
+                            {
+                                int leftPrefixLength = (int)Math.Ceiling(128 - (BigInteger.Log10(remainingLeft) / Math.Log10(2)));
+                                BigInteger shiftLeft = BigInteger.Pow(2, 128 - leftPrefixLength);
+                                shiftBorder = shiftBorder - shiftLeft;
+                                whiteList.Add(new Network() { Address = Converter.ConvertToIPv6Address(shiftBorder), Prefix = leftPrefixLength });
+                                ipv6Networks++;
+                                remainingLeft = remainingLeft - shiftLeft;
+                            }                            
                             ipv6WhiteListNetwork = border;
                             remainingWhiteListSpace = remainingWhiteListSpace - left;
                         }
