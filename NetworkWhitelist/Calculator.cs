@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace NetworkWhitelist
 {
@@ -59,7 +60,7 @@ namespace NetworkWhitelist
                 ipv6Networks++;
             }
 
-            for (int i = 0; i < cleanedBlackList.Count; i++)
+            Parallel.For(0, cleanedBlackList.Count, i =>
             {
                 if (Detector.IsIPv4Protocol(cleanedBlackList[i].Address))
                 {
@@ -153,7 +154,7 @@ namespace NetworkWhitelist
 
                     lastIPv6Iteration = i;
                 }
-            }
+            });
 
             //Finalize
             if (remainingIPv4 > 0 && lastIPv4Iteration > -1)
