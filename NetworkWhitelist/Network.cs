@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace NetworkWhitelist
+namespace NetGatewayInverser
 {
     public class Network : IComparable<Network>
     {

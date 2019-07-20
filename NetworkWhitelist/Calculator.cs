@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace NetworkWhitelist
+namespace NetGatewayInverser
 {
     public static class Calculator
     {
@@ -10,33 +10,33 @@ namespace NetworkWhitelist
         //340282366920938463463374607431768211456        
         private static readonly BigInteger IPV6_ADDRESS_SPACE = BigInteger.Parse("340282366920938463463374607431768211456");
         /// <summary>
-        /// The method calculates an IPv4 and IPv6 address space in form of a network list exluding the blacklist.
+        /// The method calculates an IPv4 and IPv6 address space in form of a network list exluding the Net Gateways.
         /// </summary>
-        /// <param name="cleanedBlackList">
-        /// Parameter blacklist requires a list of networks to be excluded from IPv4 and IPv6 address space
+        /// <param name="netGateways">
+        /// Parameter netGateways requires a list of networks to be excluded from IPv4 and IPv6 address space
         /// </param>
         /// <returns>
-        /// The method returns the IPv4 and IPv6 address space as a network list excluding the blacklisted
+        /// The method returns the IPv4 and IPv6 address space as a network list excluding the Net Gateways
         /// </returns>
-        public static List<Network> GetWhiteList(List<Network> rawBlackList)
+        public static List<Network> GetVpnGateways(List<Network> netGateways)
         {
-            List<Network> whiteList = new List<Network>();
-            List<Network> cleanedBlackList = new List<Network>();
+            List<Network> vpnGateways = new List<Network>();
+            List<Network> cleanedNetGateways = new List<Network>();
             long remainingIPv4 = IPV4_ADDRESS_SPACE;
             BigInteger remainingIPv6 = IPV6_ADDRESS_SPACE;
-            long ipv4WhiteListNetwork = 0;
-            BigInteger ipv6WhiteListNetwork = BigInteger.Zero;
+            long ipv4VpnGateway = 0;
+            BigInteger ipv6VpnGateway = BigInteger.Zero;
             long ipv4Networks = 0;
             long ipv6Networks = 0;
             int lastIPv4Iteration = -1;
             int lastIPv6Iteration = -1;
 
-            foreach (var loopOneNetwork in rawBlackList)
+            foreach (var loopOneNetwork in netGateways)
             {
-                if (cleanedBlackList.Count > 0)
+                if (cleanedNetGateways.Count > 0)
                 {
                     bool doubleFound = false;
-                    foreach (var loopTwoNetwork in cleanedBlackList)
+                    foreach (var loopTwoNetwork in cleanedNetGateways)
                     {
                         if (loopOneNetwork.Address.Equals(loopTwoNetwork.Address))
                         {
@@ -44,51 +44,44 @@ namespace NetworkWhitelist
                             break;
                         }
                     }
-                    if(!doubleFound) cleanedBlackList.Add(loopOneNetwork);
+                    if(!doubleFound) cleanedNetGateways.Add(loopOneNetwork);
                 }
-                else cleanedBlackList.Add(loopOneNetwork);
+                else cleanedNetGateways.Add(loopOneNetwork);
             }
 
-            cleanedBlackList.Sort();
+            cleanedNetGateways.Sort();
+                        
 
-            if (cleanedBlackList == null || cleanedBlackList.Count == 0)
+            for (int i = 0; i < cleanedNetGateways.Count; i++)
             {
-                whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0 });
-                ipv4Networks++;
-                whiteList.Add(new Network() { Address = "::", Prefix = 0 });
-                ipv6Networks++;
-            }
-
-            for (int i = 0; i < cleanedBlackList.Count; i++)
-            {
-                if (Detector.IsIPv4Protocol(cleanedBlackList[i].Address))
+                if (Detector.IsIPv4Protocol(cleanedNetGateways[i].Address))
                 {
-                    long blackListNetwork = Converter.ConvertToLongAddress(cleanedBlackList[i].Address);
-                    long blackListNetworkBroadcast = blackListNetwork + (long)Math.Pow(2, 32 - cleanedBlackList[i].Prefix) - 1;
+                    long netGateway = Converter.ConvertToLongAddress(cleanedNetGateways[i].Address);
+                    long netGatewayBroadcast = netGateway + (long)Math.Pow(2, 32 - cleanedNetGateways[i].Prefix) - 1;
 
                     if (i > 0 && lastIPv4Iteration > -1)
                     {
-                        ipv4WhiteListNetwork = Converter.ConvertToLongAddress(cleanedBlackList[lastIPv4Iteration].Address) + (long)Math.Pow(2, 32 - cleanedBlackList[lastIPv4Iteration].Prefix);
+                        ipv4VpnGateway = Converter.ConvertToLongAddress(cleanedNetGateways[lastIPv4Iteration].Address) + (long)Math.Pow(2, 32 - cleanedNetGateways[lastIPv4Iteration].Prefix);
                     }
 
-                    long remainingWhiteListSpace = blackListNetwork - ipv4WhiteListNetwork;
-                    while (remainingWhiteListSpace > 0)
+                    long remainingVpnGatewaySpace = netGateway - ipv4VpnGateway;
+                    while (remainingVpnGatewaySpace > 0)
                     {
-                        int prefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingWhiteListSpace) / Math.Log10(2)));
-                        long whiteListNetworkSize = (long)Math.Pow(2, 32 - prefixLength);
-                        long border = (long)(Math.Floor((double)(ipv4WhiteListNetwork + whiteListNetworkSize) / whiteListNetworkSize) * whiteListNetworkSize);
+                        int prefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingVpnGatewaySpace) / Math.Log10(2)));
+                        long vpnGatewaySize = (long)Math.Pow(2, 32 - prefixLength);
+                        long border = (long)(Math.Floor((double)(ipv4VpnGateway + vpnGatewaySize) / vpnGatewaySize) * vpnGatewaySize);
                         //No border violation
-                        if (ipv4WhiteListNetwork + whiteListNetworkSize <= border)
+                        if (ipv4VpnGateway + vpnGatewaySize <= border)
                         {
-                            whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(ipv4WhiteListNetwork), Prefix = prefixLength });
+                            vpnGateways.Add(new Network() { Address = Converter.ConvertToIPv4Address(ipv4VpnGateway), Prefix = prefixLength });
                             ipv4Networks++;
-                            ipv4WhiteListNetwork = ipv4WhiteListNetwork + whiteListNetworkSize;
-                            remainingWhiteListSpace = remainingWhiteListSpace - whiteListNetworkSize;
+                            ipv4VpnGateway = ipv4VpnGateway + vpnGatewaySize;
+                            remainingVpnGatewaySpace = remainingVpnGatewaySpace - vpnGatewaySize;
                             //Border violation
                         }
                         else
                         {
-                            long left = border - ipv4WhiteListNetwork;
+                            long left = border - ipv4VpnGateway;
                             long remainingLeft = left;
                             long shiftBorder = border;
                             while (remainingLeft > 0)
@@ -96,44 +89,44 @@ namespace NetworkWhitelist
                                 int leftPrefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingLeft) / Math.Log10(2)));
                                 long shiftLeft = (long)Math.Pow(2, 32 - leftPrefixLength);
                                 shiftBorder = shiftBorder - shiftLeft;
-                                whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(shiftBorder), Prefix = leftPrefixLength });                                
+                                vpnGateways.Add(new Network() { Address = Converter.ConvertToIPv4Address(shiftBorder), Prefix = leftPrefixLength });                                
                                 ipv4Networks++;
                                 remainingLeft = remainingLeft - shiftLeft;
                             }
-                            ipv4WhiteListNetwork = border;
-                            remainingWhiteListSpace = remainingWhiteListSpace - left;
+                            ipv4VpnGateway = border;
+                            remainingVpnGatewaySpace = remainingVpnGatewaySpace - left;
                         }
                     }
-                    remainingIPv4 = IPV4_ADDRESS_SPACE - blackListNetworkBroadcast - 1;
+                    remainingIPv4 = IPV4_ADDRESS_SPACE - netGatewayBroadcast - 1;
                     lastIPv4Iteration = i;
                 }
-                else if (Detector.IsIPv6Protocol(cleanedBlackList[i].Address))
+                else if (Detector.IsIPv6Protocol(cleanedNetGateways[i].Address))
                 {                       
-                    BigInteger blackListNetwork = Converter.ConvertToBigIntegerAddress(cleanedBlackList[i].Address);
-                    BigInteger blackListNetworkBroadcast = blackListNetwork + BigInteger.Pow(2, 128 - cleanedBlackList[i].Prefix) - 1;
+                    BigInteger netGateway = Converter.ConvertToBigIntegerAddress(cleanedNetGateways[i].Address);
+                    BigInteger netGatewayBroadcast = netGateway + BigInteger.Pow(2, 128 - cleanedNetGateways[i].Prefix) - 1;
                     if (i > 0 && lastIPv6Iteration > -1)
                     {
-                        ipv6WhiteListNetwork = Converter.ConvertToBigIntegerAddress(cleanedBlackList[lastIPv6Iteration].Address) + BigInteger.Pow(2, 128 - cleanedBlackList[lastIPv6Iteration].Prefix);
+                        ipv6VpnGateway = Converter.ConvertToBigIntegerAddress(cleanedNetGateways[lastIPv6Iteration].Address) + BigInteger.Pow(2, 128 - cleanedNetGateways[lastIPv6Iteration].Prefix);
                     }
-                    BigInteger remainingWhiteListSpace = blackListNetwork - ipv6WhiteListNetwork;
+                    BigInteger remainingVpnGatewaySpace = netGateway - ipv6VpnGateway;
 
-                    while (remainingWhiteListSpace > 0)
+                    while (remainingVpnGatewaySpace > 0)
                     {
-                        int prefixLength = (int)Math.Ceiling(128 - (BigInteger.Log10(remainingWhiteListSpace) / Math.Log10(2)));
-                        BigInteger whiteListNetworkSize = BigInteger.Pow(2, 128 - prefixLength);
-                        BigInteger border = BigInteger.Divide(ipv6WhiteListNetwork + whiteListNetworkSize, whiteListNetworkSize) * whiteListNetworkSize;
+                        int prefixLength = (int)Math.Ceiling(128 - (BigInteger.Log10(remainingVpnGatewaySpace) / Math.Log10(2)));
+                        BigInteger vpnGatewaySize = BigInteger.Pow(2, 128 - prefixLength);
+                        BigInteger border = BigInteger.Divide(ipv6VpnGateway + vpnGatewaySize, vpnGatewaySize) * vpnGatewaySize;
                         //No border violation
-                        if (ipv6WhiteListNetwork + whiteListNetworkSize <= border)
+                        if (ipv6VpnGateway + vpnGatewaySize <= border)
                         {
-                            whiteList.Add(new Network() { Address = Converter.ConvertToIPv6Address(ipv6WhiteListNetwork), Prefix = prefixLength });
+                            vpnGateways.Add(new Network() { Address = Converter.ConvertToIPv6Address(ipv6VpnGateway), Prefix = prefixLength });
                             ipv6Networks++;
-                            ipv6WhiteListNetwork = ipv6WhiteListNetwork + whiteListNetworkSize;
-                            remainingWhiteListSpace = remainingWhiteListSpace - whiteListNetworkSize;
+                            ipv6VpnGateway = ipv6VpnGateway + vpnGatewaySize;
+                            remainingVpnGatewaySpace = remainingVpnGatewaySpace - vpnGatewaySize;
                             //Border violation
                         }
                         else
                         {
-                            BigInteger left = border - ipv6WhiteListNetwork;
+                            BigInteger left = border - ipv6VpnGateway;
                             BigInteger remainingLeft = left;
                             BigInteger shiftBorder = border;
                             while (remainingLeft > 0)
@@ -141,15 +134,15 @@ namespace NetworkWhitelist
                                 int leftPrefixLength = (int)Math.Ceiling(128 - (BigInteger.Log10(remainingLeft) / Math.Log10(2)));
                                 BigInteger shiftLeft = BigInteger.Pow(2, 128 - leftPrefixLength);
                                 shiftBorder = shiftBorder - shiftLeft;
-                                whiteList.Add(new Network() { Address = Converter.ConvertToIPv6Address(shiftBorder), Prefix = leftPrefixLength });
+                                vpnGateways.Add(new Network() { Address = Converter.ConvertToIPv6Address(shiftBorder), Prefix = leftPrefixLength });
                                 ipv6Networks++;
                                 remainingLeft = remainingLeft - shiftLeft;
                             }                            
-                            ipv6WhiteListNetwork = border;
-                            remainingWhiteListSpace = remainingWhiteListSpace - left;
+                            ipv6VpnGateway = border;
+                            remainingVpnGatewaySpace = remainingVpnGatewaySpace - left;
                         }
                     }
-                    remainingIPv6 = IPV6_ADDRESS_SPACE - blackListNetworkBroadcast - 1;
+                    remainingIPv6 = IPV6_ADDRESS_SPACE - netGatewayBroadcast - 1;
 
                     lastIPv6Iteration = i;
                 }
@@ -164,7 +157,7 @@ namespace NetworkWhitelist
                     int prefixLength = (int)Math.Ceiling(32 - (Math.Log10(remainingIPv4) / Math.Log10(2)));
                     long lastNetworkSize = (long)Math.Pow(2, 32 - prefixLength);
                     lastNetwork = lastNetwork - lastNetworkSize;
-                    whiteList.Add(new Network() { Address = Converter.ConvertToIPv4Address(lastNetwork), Prefix = prefixLength });
+                    vpnGateways.Add(new Network() { Address = Converter.ConvertToIPv4Address(lastNetwork), Prefix = prefixLength });
                     ipv4Networks++;
                     remainingIPv4 = remainingIPv4 - lastNetworkSize;
                 }
@@ -178,16 +171,13 @@ namespace NetworkWhitelist
                     int prefixLength = (int)Math.Ceiling(128 - (BigInteger.Log10(remainingIPv6) / Math.Log10(2)));
                     BigInteger lastNetworkSize = BigInteger.Pow(2, 128 - prefixLength);
                     lastNetwork = lastNetwork - lastNetworkSize;
-                    whiteList.Add(new Network() { Address = Converter.ConvertToIPv6Address(lastNetwork), Prefix = prefixLength });
+                    vpnGateways.Add(new Network() { Address = Converter.ConvertToIPv6Address(lastNetwork), Prefix = prefixLength });
                     ipv6Networks++;
                     remainingIPv6 = remainingIPv6 - lastNetworkSize;
                 }
-            }
+            }            
 
-            //if (ipv4Networks == 0) whiteList.Add(new Network() { Address = "0.0.0.0", Prefix = 0, Protocol = Protocol.IPv4 });
-            //if (ipv6Networks == 0) whiteList.Add(new Network() { Address = "::", Prefix = 0, Protocol = Protocol.IPv6 });
-
-            return whiteList;
+            return vpnGateways;
         }
     }
 }

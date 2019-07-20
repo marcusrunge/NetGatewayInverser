@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2047
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkWhitelist", "NetworkWhitelist\NetworkWhitelist.csproj", "{1B6E947C-DFAB-4C19-AADA-3DA0ADB94A80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetGatewayInverser", "NetworkWhitelist\NetGatewayInverser.csproj", "{1B6E947C-DFAB-4C19-AADA-3DA0ADB94A80}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{69AA4CE4-8830-4E9C-803F-FFC8835CBB35}"
 EndProject

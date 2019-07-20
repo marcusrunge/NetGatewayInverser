@@ -53,9 +53,9 @@
     <Compile Include="CalculatorTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetworkWhitelist\NetworkWhitelist.csproj">
+    <ProjectReference Include="..\NetworkWhitelist\NetGatewayInverser.csproj">
       <Project>{1b6e947c-dfab-4c19-aada-3da0adb94a80}</Project>
-      <Name>NetworkWhitelist</Name>
+      <Name>NetGatewayInverser</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
