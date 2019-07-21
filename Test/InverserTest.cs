@@ -25,7 +25,7 @@ namespace Test
                 ,new Network() { Address = "0000:0000:0000:0000:0000:0000:0000:0001", Prefix = 128}
                 ,new Network() { Address = "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFE", Prefix = 128}
             };
-            var whiteList = Calculator.GetVpnGateways(blackList);
+            var whiteList = Inverser.GetVpnGateways(blackList);
             foreach (var white in whiteList)
             {
                 Debug.WriteLine(white.Address + "/" + white.Prefix);
