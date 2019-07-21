@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetGatewayInverser;
@@ -7,7 +6,7 @@ using NetGatewayInverser;
 namespace Test
 {
     [TestClass]
-    public class CalculatorTest
+    public class InverserTest
     {
         [TestMethod]
         public void GetWhiteListTest()

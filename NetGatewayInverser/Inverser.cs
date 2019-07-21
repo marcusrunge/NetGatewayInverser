@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace NetGatewayInverser
 {
-    public static class Calculator
+    public static class Inverser
     {
         private const long IPV4_ADDRESS_SPACE = 4294967296;
         //340282366920938463463374607431768211456        
